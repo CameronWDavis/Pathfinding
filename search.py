@@ -26,8 +26,8 @@ if __name__ == "__main__":
     epolygons = gen_polygons('TestingGrid/world1_enclosures.txt')
     tpolygons = gen_polygons('TestingGrid/world1_turfs.txt')
 
-    source = Point(24,17)
-    dest = Point(28,20)
+    source = Point(8,10)
+    dest = Point(43,45)
 
     fig, ax = draw_board()
     draw_grids(ax)
@@ -52,8 +52,8 @@ if __name__ == "__main__":
 
     #### Here call your search to compute and collect res_path
 
-    res_path = [Point(24,17), Point(25,17), Point(26,17), Point(27,17),  
-                Point(28,17), Point(28,18), Point(28,19), Point(28,20)]
+    res_path = [source, Point(25,17), Point(26,17), Point(27,17),  
+                Point(28,17), Point(28,18), Point(28,19), dest]
     
     for i in range(len(res_path)-1):
         draw_result_line(ax, [res_path[i].x, res_path[i+1].x], [res_path[i].y, res_path[i+1].y])
