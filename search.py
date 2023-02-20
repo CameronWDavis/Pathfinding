@@ -2,7 +2,9 @@ import matplotlib.pyplot as plt
 import numpy as np
 import time
 import matplotlib.animation as animation
+import matplotlib as mpl
 
+mpl.use('TkAgg') #this is so it works on windows 
 from utils import *
 from grid import *
 
