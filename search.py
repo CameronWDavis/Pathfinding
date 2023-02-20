@@ -7,6 +7,7 @@ import matplotlib as mpl
 mpl.use('TkAgg') #this is so it works on windows 
 from utils import *
 from grid import *
+from algorithms import *
 
 def gen_polygons(worldfilepath):
     polygons = []
