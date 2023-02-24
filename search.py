@@ -5,10 +5,60 @@ import time
 import matplotlib.animation as animation
 import matplotlib.path as mpath
 
-mpl.use('TkAgg')
 from utils import *
 from grid import *
 from algorithms import *
+mpl.use('TkAgg')
+
+def printMenu():
+    print("Please enter the algorithm to display,")
+    print("1) Breadth First Search")
+    print("2) Depth First Search")
+    print("3) Greedy Breadth First Search")
+    print("4) A* Search")
+    print("5) To exit")
+
+def drawBoard(res_path):
+    fig, ax = draw_board()
+    draw_grids(ax)
+    draw_source(ax, source.x, source.y)  # source point
+    draw_dest(ax, dest.x, dest.y)  # destination point
+
+    # Draw enclosure polygons
+    for polygon in epolygons:
+        for p in polygon:
+            draw_point(ax, p.x, p.y)
+    for polygon in epolygons:
+        for i in range(0, len(polygon)):
+            draw_line(ax, [polygon[i].x, polygon[(i + 1) % len(polygon)].x],
+                      [polygon[i].y, polygon[(i + 1) % len(polygon)].y])
+
+    # Draw turf polygons
+    for polygon in tpolygons:
+        for p in polygon:
+            draw_green_point(ax, p.x, p.y)
+    for polygon in tpolygons:
+        for i in range(0, len(polygon)):
+            draw_green_line(ax, [polygon[i].x, polygon[(i + 1) % len(polygon)].x],
+                            [polygon[i].y, polygon[(i + 1) % len(polygon)].y])
+
+    for i in range(len(res_path) - 1):
+        draw_result_line(ax, [res_path[i].x, res_path[i + 1].x], [res_path[i].y, res_path[i + 1].y])
+        plt.pause(0.1)
+    plt.show()
+    plt.close()
+
+def fillArray(shapesArray):
+    array = []
+    polygons = [mpath.Path([(p.x, p.y) for p in shape]) for shape in shapesArray]
+    for x in range(50):
+        for y in range(50):
+            point = Point(x, y)
+            for polygon in polygons:
+                if polygon.contains_point(point.to_tuple(), radius=-0.1):
+                    array.append(point)
+                    break
+    return array
 
 def gen_polygons(worldfilepath):
     polygons = []
@@ -25,80 +75,48 @@ def gen_polygons(worldfilepath):
     return polygons
 
 
-
-
-def isIllegal(epolygons,point):
-    grid = [[0 for _ in range(50)] for _ in range(50)] #creates a 50 by 50 graph
-    for i in range(len(epolygons)):
-        polygon = [(point.x, point.y) for point in epolygons[i]]
-        path = mpath.Path(polygon)
-        inside = path.contains_points([[point.x,point.y]], radius=-0.1)
-        for j in range(len(polygon)):
-            if inside:
-                return True
-    return  False
-
-
-
-
-
-
-
 if __name__ == "__main__":
+    #our starting shapes
     epolygons = gen_polygons('TestingGrid/world1_enclosures.txt')
     tpolygons = gen_polygons('TestingGrid/world1_turfs.txt')
+    #our starting polygons
+    source = Point(8, 10)
+    dest = Point(43, 45)
 
-    source = Point(8,10)
-    dest = Point(43,45)
 
+    #creating lists of the points my algorithms need to make choices
+    blockedPoints = fillArray(epolygons)
+    costPoints = fillArray(tpolygons)
 
-    fig, ax = draw_board()
-    draw_grids(ax)
-    draw_source(ax, source.x, source.y)  # source point
-    draw_dest(ax, dest.x, dest.y)  # destination point
+    searchToShow = 0
+
+#while statement that takes in user input and draws the selected board
+    while (searchToShow != 5):
+        printMenu()
+        searchToShow = input()
+        searchToShow = int(searchToShow.strip()) #remove whitespaces because users can be bad
+        match searchToShow:
+            #cases to show path
+            case 1:
+                res_path = breadthFirstSearch(source, dest, blockedPoints)
+                drawBoard(res_path)
+            case 2:
+                res_path = depthFirstSearch(source, dest, blockedPoints)
+                drawBoard(res_path)
+            case 3:
+                res_path = gbfs(source, dest, blockedPoints)
+                drawBoard(res_path)
+            case 4:
+                res_path = aStar(source, dest, blockedPoints, costPoints)
+                drawBoard(res_path)
+            case 5:
+                print("Good bye!")
+                exit()
+            case _:
+                print("Invalid search algorithm")
     
-    # Draw enclosure polygons
-    for polygon in epolygons:
-        for p in polygon:
-            draw_point(ax, p.x, p.y)
-    for polygon in epolygons:
-        for i in range(0, len(polygon)):
-            draw_line(ax, [polygon[i].x, polygon[(i+1)%len(polygon)].x], [polygon[i].y, polygon[(i+1)%len(polygon)].y])
     
-    # Draw turf polygons
-    for polygon in tpolygons:
-        for p in polygon:
-            draw_green_point(ax, p.x, p.y)
-    for polygon in tpolygons:
-        for i in range(0, len(polygon)):
-            draw_green_line(ax, [polygon[i].x, polygon[(i+1)%len(polygon)].x], [polygon[i].y, polygon[(i+1)%len(polygon)].y])
+    
 
-
-        #### Here call your search to compute and collect res_path
-        badPoints = []
-        for x in range(50):
-            for y in range(50):
-                p = Point(x,y)
-                bad = isIllegal(epolygons,p)
-                if bad is True:
-                     badPoints.append(p)
-
-        for p in badPoints:
-         print(p)
-
-
-
-
-        res_path = [source, Point(26, 17), Point(27, 17),
-                    Point(28, 17), Point(28, 18), Point(28, 19), dest]
-
-        #res_path = breadthFirstSearch(source,dest,badPoints)
-
-
-        for i in range(len(res_path) - 1):
-            draw_result_line(ax, [res_path[i].x, res_path[i + 1].x], [res_path[i].y, res_path[i + 1].y])
-            plt.pause(0.1)
-
-        plt.show()
 
 
