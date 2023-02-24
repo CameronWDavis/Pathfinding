@@ -9,3 +9,4 @@ numpy
 time
 math
 ***
+If needed inside of scripts there is my python interpreter I ran to make this project
