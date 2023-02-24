@@ -11,7 +11,7 @@ from algorithms import *
 mpl.use('TkAgg')
 
 def printMenu():
-    print("Please enter the algorithm to display,")
+    print("Please enter the number next to the algorithm to display it,")
     print("1) Breadth First Search")
     print("2) Depth First Search")
     print("3) Greedy Breadth First Search")
