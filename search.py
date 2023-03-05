@@ -48,16 +48,17 @@ def drawBoard(res_path):
     plt.show()
     plt.close()
 
+
 def fillArray(shapesArray):
-    array = []
     polygons = [mpath.Path([(p.x, p.y) for p in shape]) for shape in shapesArray]
-    for x in range(50):
-        for y in range(50):
-            point = Point(x, y)
-            for polygon in polygons:
-                if polygon.contains_point(point.to_tuple(), radius=-0.1):
-                    array.append(point)
-                    break
+    x, y = np.meshgrid(np.arange(50), np.arange(50))
+    points = np.column_stack((x.ravel(), y.ravel()))
+    inside = np.zeros(len(points), dtype=bool)
+    with concurrent.futures.ThreadPoolExecutor() as executor:
+        results = [executor.submit(polygon.contains_points, points, radius=-0.1) for polygon in polygons]
+        for result in concurrent.futures.as_completed(results):
+            inside |= result.result()
+    array = [Point(*point) for point in points[inside]]
     return array
 
 def gen_polygons(worldfilepath):
